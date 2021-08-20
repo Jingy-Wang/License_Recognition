@@ -57,12 +57,16 @@ def seperate_card(img, waves):
 class Model_Number(paddle.nn.Layer):
     def __init__(self):
         super(Model_Number, self).__init__()
-        self.x2paddle_fc_weight = self.create_parameter(shape=[34, 1152], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
-        self.x2paddle_fc_bias = self.create_parameter(shape=[34], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
-        self.conv0 = paddle.nn.Conv2D(in_channels=1, out_channels=16, kernel_size=[3, 3], padding=2)
+        self.x2paddle_fc_weight = self.create_parameter(
+            shape=[34, 1152], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
+        self.x2paddle_fc_bias = self.create_parameter(
+            shape=[34], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
+        self.conv0 = paddle.nn.Conv2D(
+            in_channels=1, out_channels=16, kernel_size=[3, 3], padding=2)
         self.relu0 = paddle.nn.ReLU()
         self.pool0 = paddle.nn.MaxPool2D(kernel_size=[2, 2], stride=2)
-        self.conv1 = paddle.nn.Conv2D(in_channels=16, out_channels=32, kernel_size=[3, 3], padding=2)
+        self.conv1 = paddle.nn.Conv2D(
+            in_channels=16, out_channels=32, kernel_size=[3, 3], padding=2)
         self.relu1 = paddle.nn.ReLU()
         self.pool1 = paddle.nn.MaxPool2D(kernel_size=[2, 2], stride=2)
 
@@ -76,7 +80,8 @@ class Model_Number(paddle.nn.Layer):
         x2paddle_23 = self.relu1(x2paddle_30)
         x2paddle_24 = self.pool1(x2paddle_23)
         x2paddle_25 = paddle.reshape(x=x2paddle_24, shape=[-1, 1152])
-        x2paddle_output_mm = paddle.matmul(x=x2paddle_25, y=x2paddle_fc_weight, transpose_y=True)
+        x2paddle_output_mm = paddle.matmul(
+            x=x2paddle_25, y=x2paddle_fc_weight, transpose_y=True)
         x2paddle_output_mm = paddle.scale(x=x2paddle_output_mm)
         x2paddle_output = paddle.add(x=x2paddle_output_mm, y=x2paddle_fc_bias)
         return x2paddle_output
@@ -85,12 +90,16 @@ class Model_Number(paddle.nn.Layer):
 class Model_Chi(paddle.nn.Layer):
     def __init__(self):
         super(Model_Chi, self).__init__()
-        self.x2paddle_fc_weight = self.create_parameter(shape=[31, 1152], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
-        self.x2paddle_fc_bias = self.create_parameter(shape=[31], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
-        self.conv0 = paddle.nn.Conv2D(in_channels=1, out_channels=16, kernel_size=[3, 3], padding=2)
+        self.x2paddle_fc_weight = self.create_parameter(
+            shape=[31, 1152], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
+        self.x2paddle_fc_bias = self.create_parameter(
+            shape=[31], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=0.0))
+        self.conv0 = paddle.nn.Conv2D(
+            in_channels=1, out_channels=16, kernel_size=[3, 3], padding=2)
         self.relu0 = paddle.nn.ReLU()
         self.pool0 = paddle.nn.MaxPool2D(kernel_size=[2, 2], stride=2)
-        self.conv1 = paddle.nn.Conv2D(in_channels=16, out_channels=32, kernel_size=[3, 3], padding=2)
+        self.conv1 = paddle.nn.Conv2D(
+            in_channels=16, out_channels=32, kernel_size=[3, 3], padding=2)
         self.relu1 = paddle.nn.ReLU()
         self.pool1 = paddle.nn.MaxPool2D(kernel_size=[2, 2], stride=2)
 
@@ -104,7 +113,8 @@ class Model_Chi(paddle.nn.Layer):
         x2paddle_23 = self.relu1(x2paddle_30)
         x2paddle_24 = self.pool1(x2paddle_23)
         x2paddle_25 = paddle.reshape(x=x2paddle_24, shape=[-1, 1152])
-        x2paddle_output_mm = paddle.matmul(x=x2paddle_25, y=x2paddle_fc_weight, transpose_y=True)
+        x2paddle_output_mm = paddle.matmul(
+            x=x2paddle_25, y=x2paddle_fc_weight, transpose_y=True)
         x2paddle_output_mm = paddle.scale(x=x2paddle_output_mm)
         x2paddle_output = paddle.add(x=x2paddle_output_mm, y=x2paddle_fc_bias)
         return x2paddle_output
@@ -116,10 +126,6 @@ class StatModel(object):
 
     def save(self, fn):
         self.model.save(fn)
-
-
-
-
 
 
 class CardPredictor:
@@ -137,7 +143,8 @@ class CardPredictor:
         paddle.disable_static()
         self.model_num_param = paddle.load('pd_model/number.pdparams')
         self.model_number = Model_Number()
-        self.model_number.set_dict(self.model_num_param, use_structured_name=True)
+        self.model_number.set_dict(
+            self.model_num_param, use_structured_name=True)
         self.model_number.eval()
 
         self.model_chi_param = paddle.load('pd_model/chinese.pdparams')
@@ -145,10 +152,11 @@ class CardPredictor:
         self.model_chi.set_dict(self.model_chi_param, use_structured_name=True)
         self.model_chi.eval()
 
-    def predict_num(self,img):
+    def predict_num(self, img):
         if img.shape == (20, 20, 3):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img_tensor = paddle.to_tensor(img).unsqueeze(0).unsqueeze(0).astype('float32')
+        img_tensor = paddle.to_tensor(img).unsqueeze(
+            0).unsqueeze(0).astype('float32')
         paddle.disable_static()
         out = self.model_number(img_tensor)
         res = int(np.argmax(out))
@@ -162,7 +170,8 @@ class CardPredictor:
     def predict_chin(self, img):
         if img.shape == (20, 20, 3):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img_tensor = paddle.to_tensor(img).unsqueeze(0).unsqueeze(0).astype('float32')
+        img_tensor = paddle.to_tensor(img).unsqueeze(
+            0).unsqueeze(0).astype('float32')
         paddle.disable_static()
         out = self.model_chi(img_tensor)
         res = int(np.argmax(out))
@@ -171,7 +180,6 @@ class CardPredictor:
                 '琼', '陕', '苏', '晋', '皖', '湘', '新', '豫', '渝',
                 '粤', '云', '藏', '浙']
         return chin[res]
-
 
     def accurate_place(self, card_img_hsv, limit1, limit2, color):
         row_num, col_num = card_img_hsv.shape[:2]
@@ -218,7 +226,8 @@ class CardPredictor:
         pic_hight, pic_width = img.shape[:2]
         if pic_width > MAX_WIDTH:
             pic_rate = MAX_WIDTH / pic_width
-            img = cv2.resize(img, (MAX_WIDTH, int(pic_hight * pic_rate)), interpolation=cv2.INTER_LANCZOS4)
+            img = cv2.resize(img, (MAX_WIDTH, int(
+                pic_hight * pic_rate)), interpolation=cv2.INTER_LANCZOS4)
 
         if resize_rate != 1:
             img = cv2.resize(img, (int(pic_width * resize_rate), int(pic_hight * resize_rate)),
@@ -237,21 +246,25 @@ class CardPredictor:
         # 去掉图像中不会是车牌的区域
         kernel = np.ones((20, 20), np.uint8)
         img_opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-        img_opening = cv2.addWeighted(img, 1, img_opening, -1, 0);
+        img_opening = cv2.addWeighted(img, 1, img_opening, -1, 0)
 
         # 找到图像边缘
-        ret, img_thresh = cv2.threshold(img_opening, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        ret, img_thresh = cv2.threshold(
+            img_opening, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         img_edge = cv2.Canny(img_thresh, 100, 200)
         # 使用开运算和闭运算让图像边缘成为一个整体
-        kernel = np.ones((self.cfg["morphologyr"], self.cfg["morphologyc"]), np.uint8)
+        kernel = np.ones(
+            (self.cfg["morphologyr"], self.cfg["morphologyc"]), np.uint8)
         img_edge1 = cv2.morphologyEx(img_edge, cv2.MORPH_CLOSE, kernel)
         img_edge2 = cv2.morphologyEx(img_edge1, cv2.MORPH_OPEN, kernel)
 
         # 查找图像边缘整体形成的矩形区域，可能有很多，车牌就在其中一个矩形区域中
         try:
-            contours, hierarchy = cv2.findContours(img_edge2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy = cv2.findContours(
+                img_edge2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         except ValueError:
-            image, contours, hierarchy = cv2.findContours(img_edge2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            image, contours, hierarchy = cv2.findContours(
+                img_edge2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         contours = [cnt for cnt in contours if cv2.contourArea(cnt) > Min_Area]
         # print('len(contours)', len(contours))
         # 一一排除不是车牌的矩形区域
@@ -282,7 +295,8 @@ class CardPredictor:
                 angle = 1
             else:
                 angle = rect[2]
-            rect = (rect[0], (rect[1][0] + 5, rect[1][1] + 5), angle)  # 扩大范围，避免车牌边缘被排除
+            rect = (rect[0], (rect[1][0] + 5, rect[1][1] + 5),
+                    angle)  # 扩大范围，避免车牌边缘被排除
 
             box = cv2.boxPoints(rect)
             heigth_point = right_point = [0, 0]
@@ -299,28 +313,32 @@ class CardPredictor:
 
             if left_point[1] <= right_point[1]:  # 正角度
                 new_right_point = [right_point[0], heigth_point[1]]
-                pts2 = np.float32([left_point, heigth_point, new_right_point])  # 字符只是高度需要改变
+                pts2 = np.float32(
+                    [left_point, heigth_point, new_right_point])  # 字符只是高度需要改变
                 pts1 = np.float32([left_point, heigth_point, right_point])
                 M = cv2.getAffineTransform(pts1, pts2)
                 dst = cv2.warpAffine(oldimg, M, (pic_width, pic_hight))
                 point_limit(new_right_point)
                 point_limit(heigth_point)
                 point_limit(left_point)
-                card_img = dst[int(left_point[1]):int(heigth_point[1]), int(left_point[0]):int(new_right_point[0])]
+                card_img = dst[int(left_point[1]):int(heigth_point[1]), int(
+                    left_point[0]):int(new_right_point[0])]
                 card_imgs.append(card_img)
             # cv2.imshow("card", card_img)
             # cv2.waitKey(0)
             elif left_point[1] > right_point[1]:  # 负角度
 
                 new_left_point = [left_point[0], heigth_point[1]]
-                pts2 = np.float32([new_left_point, heigth_point, right_point])  # 字符只是高度需要改变
+                pts2 = np.float32(
+                    [new_left_point, heigth_point, right_point])  # 字符只是高度需要改变
                 pts1 = np.float32([left_point, heigth_point, right_point])
                 M = cv2.getAffineTransform(pts1, pts2)
                 dst = cv2.warpAffine(oldimg, M, (pic_width, pic_hight))
                 point_limit(right_point)
                 point_limit(heigth_point)
                 point_limit(new_left_point)
-                card_img = dst[int(right_point[1]):int(heigth_point[1]), int(new_left_point[0]):int(right_point[0])]
+                card_img = dst[int(right_point[1]):int(heigth_point[1]), int(
+                    new_left_point[0]):int(right_point[0])]
                 card_imgs.append(card_img)
             # cv2.imshow("card", card_img)
             # cv2.waitKey(0)
@@ -377,7 +395,8 @@ class CardPredictor:
                 continue
             # 以上为确定车牌颜色
             # 以下为根据车牌颜色再定位，缩小边缘非车牌边界
-            xl, xr, yh, yl = self.accurate_place(card_img_hsv, limit1, limit2, color)
+            xl, xr, yh, yl = self.accurate_place(
+                card_img_hsv, limit1, limit2, color)
             if yl == yh and xl == xr:
                 continue
             need_accurate = False
@@ -390,12 +409,13 @@ class CardPredictor:
                 xr = col_num
                 need_accurate = True
             card_imgs[card_index] = card_img[yl:yh, xl:xr] if color != "green" or yl < (yh - yl) // 4 \
-                                                            else card_img[yl - (yh - yl) // 4:yh,xl:xr]
+                else card_img[yl - (yh - yl) // 4:yh, xl:xr]
 
             if need_accurate:  # 可能x或y方向未缩小，需要再试一次
                 card_img = card_imgs[card_index]
                 card_img_hsv = cv2.cvtColor(card_img, cv2.COLOR_BGR2HSV)
-                xl, xr, yh, yl = self.accurate_place(card_img_hsv, limit1, limit2, color)
+                xl, xr, yh, yl = self.accurate_place(
+                    card_img_hsv, limit1, limit2, color)
                 if yl == yh and xl == xr:
                     continue
                 if yl >= yh:
@@ -405,7 +425,7 @@ class CardPredictor:
                     xl = 0
                     xr = col_num
             card_imgs[card_index] = card_img[yl:yh, xl:xr] if color != "green" or yl < (yh - yl) // 4 \
-                                                            else card_img[yl - (yh - yl) // 4:yh,xl:xr]
+                else card_img[yl - (yh - yl) // 4:yh, xl:xr]
 
         # 以上为车牌定位
         # 以下为识别车牌中的字符
@@ -419,7 +439,8 @@ class CardPredictor:
                 # 黄、绿车牌字符比背景暗、与蓝车牌刚好相反，所以黄、绿车牌需要反向
                 if color == "green" or color == "yello":
                     gray_img = cv2.bitwise_not(gray_img)
-                ret, gray_img = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+                ret, gray_img = cv2.threshold(
+                    gray_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
                 # 查找水平直方图波峰
                 x_histogram = np.sum(gray_img, axis=1)
                 x_min = np.min(x_histogram)
@@ -487,8 +508,10 @@ class CardPredictor:
                     part_card_old = part_card
                     # w = abs(part_card.shape[1] - SZ)//2
                     w = part_card.shape[1] // 3
-                    part_card = cv2.copyMakeBorder(part_card, 0, 0, w, w, cv2.BORDER_CONSTANT, value=[0, 0, 0])
-                    part_card = cv2.resize(part_card, (SZ, SZ), interpolation=cv2.INTER_AREA)
+                    part_card = cv2.copyMakeBorder(
+                        part_card, 0, 0, w, w, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+                    part_card = cv2.resize(
+                        part_card, (SZ, SZ), interpolation=cv2.INTER_AREA)
                     # print(type(part_card))
                     # cv2.imshow("part", part_card)
                     # cv2.waitKey(0)
@@ -498,7 +521,8 @@ class CardPredictor:
                         resp = self.predict_num(part_card)
                     # 判断最后一个数是否是车牌边缘，假设车牌边缘被认为是1
                     if resp == "1" or resp == 'J' and i == len(part_cards) - 1:
-                        if part_card_old.shape[0] / part_card_old.shape[1] >= 8:  # 1太细，认为是边缘
+                        # 1太细，认为是边缘
+                        if part_card_old.shape[0] / part_card_old.shape[1] >= 8:
                             # print(part_card_old.shape)
                             continue
                     predict_result.append(resp)
@@ -521,5 +545,3 @@ def license_recognition(img_path):
 if __name__ == '__main__':
     license = license_recognition("2.jpg")
     print(license)
-
-
