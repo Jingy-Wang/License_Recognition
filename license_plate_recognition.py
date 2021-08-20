@@ -1,10 +1,9 @@
-import pandas as pd
 import cv2
 import numpy as np
-from x2paddle.op_mapper.onnx2paddle import onnx_custom_layer as x2paddle_nn
-import json
 import paddle
 from functools import reduce
+
+from .config import *
 
 SZ = 20  # 训练图片长宽
 MAX_WIDTH = 1000  # 原始图片最大宽度
@@ -120,20 +119,10 @@ class Model_Chi(paddle.nn.Layer):
         return x2paddle_output
 
 
-class StatModel(object):
-    def load(self, fn):
-        self.model = self.model.load(fn)
-
-    def save(self, fn):
-        self.model.save(fn)
-
-
 class CardPredictor:
     def __init__(self):
-        # 车牌识别的部分参数保存在js中，便于根据图片分辨率做调整
-        f = open('config.json')
-        j = json.load(f)
-        for c in j["config"]:
+        # 车牌识别的部分参数保存在 config.py 中，便于根据图片分辨率做调整
+        for c in config:
             if c["open"]:
                 self.cfg = c.copy()
                 break
@@ -141,13 +130,13 @@ class CardPredictor:
             raise RuntimeError('没有设置有效配置参数')
 
         paddle.disable_static()
-        self.model_num_param = paddle.load('pd_model/number.pdparams')
+        self.model_num_param = paddle.load(model_prefix + 'number.pdparams')
         self.model_number = Model_Number()
         self.model_number.set_dict(
             self.model_num_param, use_structured_name=True)
         self.model_number.eval()
 
-        self.model_chi_param = paddle.load('pd_model/chinese.pdparams')
+        self.model_chi_param = paddle.load(model_prefix + 'chinese.pdparams')
         self.model_chi = Model_Chi()
         self.model_chi.set_dict(self.model_chi_param, use_structured_name=True)
         self.model_chi.eval()
