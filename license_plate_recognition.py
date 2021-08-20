@@ -4,6 +4,7 @@ import numpy as np
 from x2paddle.op_mapper.onnx2paddle import onnx_custom_layer as x2paddle_nn
 import json
 import paddle
+from functools import reduce
 
 SZ = 20  # 训练图片长宽
 MAX_WIDTH = 1000  # 原始图片最大宽度
@@ -542,7 +543,7 @@ def license_recognition(img):
     for resize_rate in resize_rates:
         r, roi, color = c.predict(img, resize_rate)
         if len(r) > 1:
-            return r
+            return reduce(lambda x, y: x + y, r)
 
 
 if __name__ == '__main__':

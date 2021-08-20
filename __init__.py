@@ -1,1 +1,1 @@
-from license_recognition import license_recognition
+from .license_plate_recognition import license_recognition
