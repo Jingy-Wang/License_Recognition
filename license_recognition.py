@@ -533,14 +533,17 @@ class CardPredictor:
         return predict_result, roi, card_color  # 识别到的字符、定位的车牌图像、车牌颜色
 
 
-def license_recognition(img_path):
+def license_recognition(img):
+    """
+    License Recognition function.
+    parameter img should be an image object or path to image file.
+    """
     c = CardPredictor()
     resize_rates = (1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4)
     for resize_rate in resize_rates:
-        r, roi, color = c.predict(img_path, resize_rate)
+        r, roi, color = c.predict(img, resize_rate)
         if len(r) > 1:
             return r
-
 
 if __name__ == '__main__':
     license = license_recognition("2.jpg")
