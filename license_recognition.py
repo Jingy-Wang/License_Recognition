@@ -5,7 +5,6 @@ from x2paddle.op_mapper.onnx2paddle import onnx_custom_layer as x2paddle_nn
 import json
 import paddle
 
-
 SZ = 20  # 训练图片长宽
 MAX_WIDTH = 1000  # 原始图片最大宽度
 Min_Area = 2000  # 车牌区域允许最大面积
@@ -219,7 +218,7 @@ class CardPredictor:
         return xl, xr, yh, yl
 
     def predict(self, car_pic, resize_rate=1):
-        if type(car_pic) == type(""):
+        if isinstance(car_pic, str):
             img = imreadex(car_pic)
         else:
             img = car_pic
@@ -544,6 +543,7 @@ def license_recognition(img):
         r, roi, color = c.predict(img, resize_rate)
         if len(r) > 1:
             return r
+
 
 if __name__ == '__main__':
     license = license_recognition("2.jpg")
