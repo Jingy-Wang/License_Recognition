@@ -1,0 +1,1 @@
+from license_recognition import license_recognition
