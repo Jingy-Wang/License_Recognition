@@ -212,16 +212,16 @@ class CardPredictor:
             img = imreadex(car_pic)
         else:
             img = car_pic
-        pic_hight, pic_width = img.shape[:2]
+        pic_height, pic_width = img.shape[:2]
         if pic_width > MAX_WIDTH:
             pic_rate = MAX_WIDTH / pic_width
             img = cv2.resize(img, (MAX_WIDTH, int(
-                pic_hight * pic_rate)), interpolation=cv2.INTER_LANCZOS4)
+                pic_height * pic_rate)), interpolation=cv2.INTER_LANCZOS4)
 
         if resize_rate != 1:
-            img = cv2.resize(img, (int(pic_width * resize_rate), int(pic_hight * resize_rate)),
+            img = cv2.resize(img, (int(pic_width * resize_rate), int(pic_height * resize_rate)),
                              interpolation=cv2.INTER_LANCZOS4)
-            pic_hight, pic_width = img.shape[:2]
+            pic_height, pic_width = img.shape[:2]
 
         # print("h,w:", pic_hight, pic_width)
         blur = self.cfg["blur"]
@@ -289,7 +289,7 @@ class CardPredictor:
 
             box = cv2.boxPoints(rect)
             heigth_point = right_point = [0, 0]
-            left_point = low_point = [pic_width, pic_hight]
+            left_point = low_point = [pic_width, pic_height]
             for point in box:
                 if left_point[0] > point[0]:
                     left_point = point
@@ -306,7 +306,7 @@ class CardPredictor:
                     [left_point, heigth_point, new_right_point])  # 字符只是高度需要改变
                 pts1 = np.float32([left_point, heigth_point, right_point])
                 M = cv2.getAffineTransform(pts1, pts2)
-                dst = cv2.warpAffine(oldimg, M, (pic_width, pic_hight))
+                dst = cv2.warpAffine(oldimg, M, (pic_width, pic_height))
                 point_limit(new_right_point)
                 point_limit(heigth_point)
                 point_limit(left_point)
@@ -322,7 +322,7 @@ class CardPredictor:
                     [new_left_point, heigth_point, right_point])  # 字符只是高度需要改变
                 pts1 = np.float32([left_point, heigth_point, right_point])
                 M = cv2.getAffineTransform(pts1, pts2)
-                dst = cv2.warpAffine(oldimg, M, (pic_width, pic_hight))
+                dst = cv2.warpAffine(oldimg, M, (pic_width, pic_height))
                 point_limit(right_point)
                 point_limit(heigth_point)
                 point_limit(new_left_point)
